@@ -41,7 +41,7 @@ function groupLine(event, market, outcome) {
 
 /**
  * Find every line where backing the best available price on each outcome
- * costs less than the guaranteed payout.
+ * costs less than the payout every outcome returns.
  *
  * @param {object[]} events  Odds API events
  * @param {object}   opts
@@ -220,7 +220,7 @@ export function legLabel(market, leg) {
  *
  * For each book it looks at that book's own 2-way markets (moneyline, spread, total) on games
  * that haven't started, and measures the book's margin on that line. The expected cost of a
- * bet is roughly stake x (1 - 1/sum(1/price)), so lower margin = cheaper camouflage.
+ * bet is roughly stake x (1 - 1/sum(1/price)), so lower margin = cheaper cover bet.
  * It suggests the side recreational bettors usually take: the favourite, or the Over.
  *
  * @returns {{bookKey, bookTitle, picks: object[]}[]}

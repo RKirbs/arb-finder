@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://api.the-odds-api.com; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Arb Finder Guide</title>
   <meta name="description" content="How sports betting arbitrage works, how to get a free Odds API key, and how to use Arb Finder step by step.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23167a55'/%3E%3Cpath d='M8 21l6-6 4 4 6-8' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
@@ -15,7 +17,7 @@
         <span class="logo" aria-hidden="true"></span>
         <div>
           <span class="brand-name">Arb Finder</span>
-          <p class="tagline">Find guaranteed-profit lines across US sportsbooks</p>
+          <p class="tagline">Find arbitrage opportunities across US sportsbooks</p>
         </div>
       </a>
       <nav class="nav">
@@ -43,12 +45,13 @@
         <li><a href="#credits">Make your credits last</a></li>
         <li><a href="#risks">Risks and honest truths</a></li>
         <li><a href="#faq">FAQ</a></li>
+        <li><a href="#disclaimer">Disclaimer</a></li>
       </ol>
     </nav>
 
     <main class="doc">
       <h1>How to use Arb Finder</h1>
-      <p class="lede">Arb Finder compares odds across US sportsbooks and flags games where you can bet every side and make money whatever happens. It's free, it runs in your browser, and setup takes about three minutes.</p>
+      <p class="lede">Arb Finder compares odds across US sportsbooks and flags games where you can bet every side and make money whichever side wins. It's free, it runs in your browser, and setup takes about three minutes.</p>
 
       <!-- QUICK START -->
       <section id="quick-start" class="callout">
@@ -79,7 +82,7 @@
             <tfoot><tr><td colspan="3">Total</td><td class="num">$100.00</td><td class="num good"><strong>+$2.96</strong></td></tr></tfoot>
           </table>
         </div>
-        <p>One bet loses and the other wins. Either way you get back $102.96 on $100, a 2.96% profit with no risk on the result.</p>
+        <p>One bet loses and the other wins. Either way you get back $102.96 on $100, a 2.96% profit whichever team wins, as long as both bets are accepted at those odds and settled normally.</p>
 
         <h3>How the Finder spots it</h3>
         <p>Every price implies a probability. +110 implies 47.6% and +102 implies 49.5%. A fair market adds up to 100%, and books normally build in their margin so it adds up to about 104–105%. If the <em>best</em> price on each side, taken from different books, adds up to <strong>less than 100%</strong>, there's an arb:</p>
@@ -101,8 +104,8 @@
           <table class="example">
             <thead><tr><th>Odds API plan</th><th class="num">Price</th><th class="num">Credits / month</th><th>Sportsbooks</th></tr></thead>
             <tbody>
-              <tr><td><strong>Starter (free)</strong></td><td class="num">$0</td><td class="num">500</td><td>DraftKings, FanDuel, BetMGM, theScore Bet, BetRivers, Hard Rock Bet, Bally Bet, betPARX, Fliff, exchanges (Kalshi, Novig, ProphetX, Polymarket US…), offshore books</td></tr>
-              <tr><td>Paid tiers</td><td class="num">from $30</td><td class="num">from 20,000</td><td>Everything above <strong>plus Caesars, Fanatics, ReBet, Courtside</strong></td></tr>
+              <tr><td><strong>Starter (free)</strong></td><td class="num">$0</td><td class="num">500</td><td>DraftKings, FanDuel, BetMGM, theScore Bet, BetRivers, Hard Rock Bet, Bally Bet, betPARX, plus exchanges and prediction markets (Kalshi, Novig, ProphetX, Polymarket US, BetOpenly) and the Fliff sweepstakes app</td></tr>
+              <tr><td>Paid tiers</td><td class="num">from $30</td><td class="num">from 20,000</td><td>Everything above <strong>plus Caesars and Fanatics</strong> (and the ReBet and Courtside sweepstakes apps)</td></tr>
             </tbody>
           </table>
         </div>
@@ -178,7 +181,7 @@
           </li>
           <li>
             <h3>Pick your sportsbooks (box 4). This step matters most.</h3>
-            <p>Tick <strong>only books you have a funded account at and can legally bet at where you are</strong>. An arb that needs a book you can't use is worthless. Nine books are ticked by default, so untick any you don't use. Books marked <span class="tag">paid plan</span> only return odds with a paid Odds API key.</p>
+            <p>Tick <strong>only books you have a funded account at and can legally bet at where you are</strong>. An arb that needs a book you can't use is worthless. Eight state-licensed books are ticked by default, so untick any you don't use. Books marked <span class="tag">paid plan</span> only return odds with a paid Odds API key.</p>
           </li>
           <li>
             <h3>Check the cost and press Find arbs</h3>
@@ -208,7 +211,7 @@
               </tbody>
             </table>
           </div>
-          <div class="arb-foot"><span>Total staked <strong>$100.00</strong></span><span class="good">Guaranteed profit <strong>$2.90</strong> <span class="muted">(up to $3.02)</span></span></div>
+          <div class="arb-foot"><span>Total staked <strong>$100.00</strong></span><span class="good">Profit if every bet stands <strong>$2.90</strong> <span class="muted">(up to $3.02)</span></span></div>
         </figure>
         <dl class="defs">
           <dt>+2.96%</dt><dd>Return on everything you stake, whichever side wins.</dd>
@@ -217,7 +220,7 @@
           <dt>Odds</dt><dd>The price you need. If the book now shows something worse, the arb may be gone.</dd>
           <dt>Stake</dt><dd>How much to bet on that leg, based on the Bankroll filter.</dd>
           <dt>Returns</dt><dd>What that leg pays back (stake plus winnings) if it wins.</dd>
-          <dt>Guaranteed profit</dt><dd>The worst-case profit after rounding. "Up to" is the best case: rounding means the outcomes pay slightly different amounts.</dd>
+          <dt>Profit if every bet stands</dt><dd>The worst-case profit after rounding, assuming every leg is accepted at these odds and settled normally. "Up to" is the best case: rounding means the outcomes pay slightly different amounts.</dd>
         </dl>
       </section>
 
@@ -253,7 +256,7 @@
             <p>Books flag accounts where every bet has an edge. Regular customers bet the big games: primetime NFL, national-TV NBA, the favorite, the Over. A few of those small bets make your account look like everyone else's.</p>
             <p>The Finder helps with this. Under game-line results, open <strong>Cover bets</strong>. It lists the cheapest of these bets at each of your books right now, with the expected cost of a $10 bet. It uses the odds you've already loaded, so it costs no credits.</p>
             <ul>
-              <li><strong>Straight bets are the cheapest disguise.</strong> A standard −110/−110 line costs about 45¢ per $10 bet on average.</li>
+              <li><strong>Straight bets are the cheapest option.</strong> A standard −110/−110 line costs about 45¢ per $10 bet on average.</li>
               <li><strong>Small parlays look the most "recreational" but cost the most.</strong> Books keep a much bigger cut on parlays, especially same-game parlays: often several times what they keep on a straight bet. If you want parlays in the mix, keep them small ($1–$5), 2–3 legs, on the biggest game of the day.</li>
               <li><strong>Budget them.</strong> Cover bets lose money on average. Treat them as a business cost, track them, and don't let them eat your arb profit. There's no magic ratio. The goal is that your betting history doesn't consist <em>only</em> of arbs.</li>
             </ul>
@@ -375,7 +378,7 @@
       <!-- RISKS -->
       <section id="risks">
         <h2>Risks and honest truths</h2>
-        <p>"Guaranteed profit" holds only if every leg is placed at the prices shown and every bet is settled normally. Here's what goes wrong in practice.</p>
+        <p>An arb's profit is only locked in if every leg is placed at the prices shown and every bet is settled normally. Here's what goes wrong in practice.</p>
         <dl class="defs">
           <dt>Sportsbooks limit arbers</dt><dd>Arbitrage betting is legal, but sportsbooks don't like it. Their terms let them restrict or close accounts, and most will cut your maximum stakes once they spot a pattern of arb bets. This tool can't stop that. Expect it, and treat each account as having a limited lifespan.</dd>
           <dt>Odds move</dt><dd>The prices here are minutes old. If a price changes between your first and second bet, you're left with an open position. Always check before betting.</dd>
@@ -383,7 +386,7 @@
           <dt>Different rules</dt><dd>Books can settle the same event differently: overtime, postponed or abandoned games, retirements in tennis, and listed pitchers in baseball. Read each book's house rules for the sport.</dd>
           <dt>Exchange fees</dt><dd>Exchanges and prediction markets (Kalshi, Novig, ProphetX, Polymarket) charge fees or commission that aren't included in the % shown.</dd>
           <dt>Taxes</dt><dd>Gambling winnings are taxable income in the US. Keep records of your bets.</dd>
-          <dt>Legality</dt><dd>You must be of legal betting age (21+ in most states, 18+ in a few) and physically in a state where the book is licensed. Offshore books aren't regulated by any US state, so you have little protection if one doesn't pay.</dd>
+          <dt>Legality</dt><dd>You must be of legal betting age (21+ in most states, 18+ in a few) and physically in a state where the book is licensed. Sweepstakes apps (Fliff, ReBet, Courtside) are banned in some states, and some states dispute prediction-market sports contracts. Arb Finder deliberately leaves out offshore books: they aren't licensed in any US state, and you'd have little protection if one didn't pay.</dd>
         </dl>
       </section>
 
@@ -404,13 +407,26 @@
         <details class="faq"><summary>Does this site make money from me?</summary><p>No. There are no ads, no affiliate links and no paid tier. It's free.</p></details>
       </section>
 
+      <!-- DISCLAIMER -->
+      <section id="disclaimer">
+        <h2>Disclaimer</h2>
+        <ul>
+          <li><strong>Information only.</strong> Arb Finder is a free odds-comparison tool. It doesn't take bets, hold money, or have any relationship with the sportsbooks or exchanges listed. Nothing on this site is betting, financial, legal or tax advice.</li>
+          <li><strong>No guarantee of accuracy.</strong> Odds come from a third party (The Odds API) and may be delayed, incomplete or wrong. Always confirm prices on the sportsbook before betting. The tool is provided "as is", without warranty of any kind, and you use it at your own risk.</li>
+          <li><strong>Your responsibility.</strong> Make sure sports betting, and each specific book, exchange or app, is legal for you where you are physically located, and that you're of legal age. Follow each operator's terms.</li>
+          <li><strong>Trademarks.</strong> Sportsbook and exchange names are trademarks of their owners and are used only to identify where odds come from. No endorsement is implied.</li>
+          <li><strong>Privacy.</strong> The site has no accounts, no analytics and no server of its own. Your API key and settings stay in your browser and are only sent to The Odds API when you search.</li>
+          <li><strong>Play responsibly.</strong> Only bet what you can afford to lose. If gambling stops being fun, call or text <a href="tel:18006973738">1-800-MY-RESET</a> (1-800-697-3738), free and confidential, 24/7.</li>
+        </ul>
+      </section>
+
       <p class="cta"><a class="btn btn-primary" href="index.html">Open the Finder</a></p>
     </main>
   </div>
 
   <footer class="wrap footer">
-    <p>Must be 21+ and in a state where sports betting is legal. Gambling problem? Call or text <a href="tel:18004262537">1-800-GAMBLER</a>. Nothing here is betting, financial or tax advice.</p>
-    <p class="muted">Odds data from The Odds API. Not affiliated with any sportsbook or with The Odds API.</p>
+    <p>For adults of legal betting age (21+ in most states) in states where sports betting is legal. Gambling problem? Call or text <a href="tel:18006973738">1-800-MY-RESET</a> (1-800-697-3738) or chat at <a href="https://1800myreset.org" target="_blank" rel="noopener">1800myreset.org</a>, free and confidential, 24/7. Nothing here is betting, financial or tax advice.</p>
+    <p class="muted">Odds data from The Odds API. Not affiliated with any sportsbook or with The Odds API. <a href="#disclaimer">Disclaimer</a></p>
   </footer>
 </body>
 </html>

@@ -6,6 +6,7 @@
 <script type="module">
 import { findArbs, findCoverBets, calcStakes, decimalToAmerican, legLabel } from '../js/arb.js';
 import { demoEvents, demoPropEvents } from '../js/demo-data.js';
+import { BOOKS } from '../js/books.js';
 
 const results = [];
 const test = (name, fn) => { try { fn(); results.push(`PASS ${name}`); } catch (e) { results.push(`FAIL ${name}: ${e.message}`); } };
@@ -214,6 +215,13 @@ test('cover bets prefer popular sports and skip started games', () => {
   const out = findCoverBets([obscure, live, pop], { now: NOW, perBook: 1, popularSports: new Set(['americanfootball_nfl']) });
   eq(out[0].picks[0].event.id, 'P');
   eq(out[0].picks[0].leg.name, 'Home', 'favourite');
+});
+
+test('no offshore or non-US books are offered; 8 defaults', () => {
+  const banned = ['bovada', 'betonlineag', 'lowvig', 'mybookieag', 'betus', 'betwhale', 'betanysports', 'polymarket', 'limitless'];
+  eq(BOOKS.filter((b) => banned.includes(b.key)).length, 0);
+  eq(BOOKS.filter((b) => b.default).length, 8);
+  eq(BOOKS.filter((b) => b.default).every((b) => b.group === 'us'), true, 'defaults are state-licensed');
 });
 
 const failed = results.filter((r) => r.startsWith('FAIL')).length;

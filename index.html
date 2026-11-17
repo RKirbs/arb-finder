@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src https://api.the-odds-api.com; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Arb Finder</title>
   <meta name="description" content="Free sports betting arbitrage finder for US sportsbooks. Compares DraftKings, FanDuel, BetMGM, theScore Bet, BetRivers, Hard Rock Bet and more. Runs entirely in your browser.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23167a55'/%3E%3Cpath d='M8 21l6-6 4 4 6-8' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
@@ -15,7 +17,7 @@
         <span class="logo" aria-hidden="true"></span>
         <div>
           <h1>Arb Finder</h1>
-          <p class="tagline">Find guaranteed-profit lines across US sportsbooks</p>
+          <p class="tagline">Find arbitrage opportunities across US sportsbooks</p>
         </div>
       </a>
       <div class="topbar-right">
@@ -146,9 +148,9 @@
   <footer class="wrap footer">
     <p><strong>How it works.</strong> For every game, the finder takes the best price on each side of a market across the books you selected. If backing every side at those prices costs less than what any single result pays back, the line is an arbitrage. The stakes shown split your bankroll so every outcome pays the same.</p>
     <p><strong>Before you bet.</strong> Odds move fast. Confirm every price on the sportsbook before placing a leg, and place the harder-to-get leg first. Books can limit accounts that arb, void bets on obvious errors, and apply different rules to things like overtime or postponements. Exchange fees are not included. Nothing here is betting advice.</p>
-    <p>Must be 21+ and in a state where sports betting is legal. Gambling problem? Call or text <a href="tel:18004262537">1-800-GAMBLER</a>.</p>
+    <p>For adults of legal betting age (21+ in most states) in states where sports betting is legal. Gambling problem? Call or text <a href="tel:18006973738">1-800-MY-RESET</a> (1-800-697-3738) or chat at <a href="https://1800myreset.org" target="_blank" rel="noopener">1800myreset.org</a>, free and confidential, 24/7.</p>
     <p>New to arbing? Read the <a href="guide.html">full guide</a>: how it works, getting a free key, placing bets safely, and the risks.</p>
-    <p class="muted">Odds data from The Odds API. Not affiliated with any sportsbook or with The Odds API. Free, no ads, no tracking.</p>
+    <p class="muted">Odds data from The Odds API. Not affiliated with any sportsbook or with The Odds API. Free, no ads, no tracking. <a href="guide.html#disclaimer">Disclaimer</a></p>
   </footer>
 
   <script type="module" src="js/app.js"></script>

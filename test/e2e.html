@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Arb Finder end-to-end test</title></head>
+<body>
+<pre id="e2e-out">running…</pre>
+<div id="app"></div>
+<script type="module">
+// Runs the real app (js/app.js) against a mocked Odds API that returns responses in the
+// documented v4 shapes, then checks requests, credit estimates and rendered results.
+import { demoEvents, demoPropEvents } from '../js/demo-data.js';
+
+const out = [];
+const check = (name, cond, detail = '') => out.push(`${cond ? 'PASS' : 'FAIL'} ${name}${cond ? '' : ' :: ' + detail}`);
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const report = () => {
+  const failed = out.filter((l) => l.startsWith('FAIL')).length;
+  document.getElementById('e2e-out').textContent = out.join('\n') + `\n\n${out.length - failed}/${out.length} passed`;
+  document.title = failed ? 'FAILED' : 'PASSED';
+};
+
+try {
+  // 1. Mount the real Finder markup
+  const html = await (await fetch('../index.html')).text();
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  document.getElementById('app').innerHTML = doc.body.innerHTML;
+
+  // 2. Saved state from an older version, including a removed offshore book
+  localStorage.clear();
+  localStorage.setItem('arbfinder:key', JSON.stringify('TESTKEY123'));
+  localStorage.setItem('arbfinder:books', JSON.stringify(['draftkings', 'fanduel', 'betmgm', 'espnbet', 'betrivers', 'hardrockbet', 'ballybet', 'betparx', 'bovada']));
+
+  // 3. Mock The Odds API
+  const calls = [];
+  const realFetch = window.fetch.bind(window);
+  const hdr = { 'content-type': 'application/json', 'x-requests-remaining': '480', 'x-requests-used': '20', 'x-requests-last': '3' };
+  const json = (body) => new Response(JSON.stringify(body), { headers: hdr });
+  window.fetch = async (url) => {
+    const u = new URL(url, location.href);
+    if (u.hostname !== 'api.the-odds-api.com') return realFetch(url);
+    calls.push(u);
+    const p = u.pathname;
+    if (p === '/v4/sports') return json([
+      { key: 'basketball_nba', group: 'Basketball', title: 'NBA', active: true, has_outrights: false },
+      { key: 'americanfootball_nfl', group: 'American Football', title: 'NFL', active: true, has_outrights: false },
+      { key: 'icehockey_nhl', group: 'Ice Hockey', title: 'NHL', active: true, has_outrights: false },
+      { key: 'americanfootball_nfl_super_bowl_winner', group: 'American Football', title: 'Super Bowl Winner', active: true, has_outrights: true },
+    ]);
+    let m;
+    if ((m = p.match(/^\/v4\/sports\/([^/]+)\/odds$/))) return json(demoEvents().filter((e) => e.sport_key === m[1]));
+    if ((m = p.match(/^\/v4\/sports\/([^/]+)\/events$/))) return json(demoPropEvents().map(({ bookmakers, ...e }) => e).filter((e) => e.sport_key === m[1]));
+    if ((m = p.match(/^\/v4\/sports\/([^/]+)\/events\/([^/]+)\/odds$/))) return json(demoPropEvents().find((e) => e.id === m[2]));
+    return new Response('{"message":"not found"}', { status: 404, headers: hdr });
+  };
+
+  // 4. Boot the real app
+  await import('../js/app.js');
+  await wait(300);
+  const $ = (id) => document.getElementById(id);
+
+  check('in-season sports load from /v4/sports', $('sports').textContent.includes('NBA'));
+  check('futures/outright markets are not offered as sports', !$('sports').textContent.includes('Super Bowl Winner'));
+  check('quota shows remaining credits', $('quota').textContent.includes('480'), $('quota').textContent);
+  check('removed offshore book is not listed', !$('books').textContent.includes('Bovada'));
+  check('line cost = 3 sports x 3 markets x 1 = 9 credits', $('cost').textContent.includes('9 credits'), $('cost').textContent);
+
+  // 5. Game-line search
+  $('fetch').click();
+  await wait(800);
+  const oddsCalls = calls.filter((u) => /\/odds$/.test(u.pathname) && !u.pathname.includes('/events/'));
+  check('one odds request per in-season selected sport (3)', oddsCalls.length === 3, String(oddsCalls.length));
+  const books = oddsCalls[0]?.searchParams.get('bookmakers') || '';
+  check('saved offshore book is never requested', !books.includes('bovada'), books);
+  check('8 books requested', books.split(',').length === 8, books);
+  check('markets param = h2h,spreads,totals', oddsCalls[0]?.searchParams.get('markets') === 'h2h,spreads,totals');
+  check('decimal odds requested', oddsCalls[0]?.searchParams.get('oddsFormat') === 'decimal');
+  check('API key sent only as apiKey param', oddsCalls.every((u) => u.searchParams.get('apiKey') === 'TESTKEY123'));
+  const lineCards = [...document.querySelectorAll('#list .arb')];
+  check('2 game-line arbs shown (Knicks ML, Bills/Chiefs spread)', lineCards.length === 2, String(lineCards.length));
+  check('top arb is +2.96%', lineCards[0]?.querySelector('.profit')?.textContent === '+2.96%', lineCards[0]?.querySelector('.profit')?.textContent);
+  check('profit wording is not "guaranteed"', !document.getElementById('app').textContent.includes('Guaranteed profit'));
+  check('status reports games checked', /Checked \d+ games?/.test($('status').textContent), $('status').textContent);
+  const cover = document.querySelector('.cover-bets');
+  check('cover-bets panel rendered', !!cover && cover.querySelectorAll('tbody tr').length > 0);
+
+  // 6. Filters work without new requests
+  const before = calls.length;
+  $('f-minprofit').value = '2.5';
+  $('f-minprofit').dispatchEvent(new Event('input'));
+  await wait(50);
+  check('min profit filter hides arbs below 2.5%', document.querySelectorAll('#list .arb').length === 1);
+  check('filtering makes no API calls', calls.length === before);
+  $('f-minprofit').value = '0';
+  $('f-minprofit').dispatchEvent(new Event('input'));
+
+  // 7. Player props
+  document.querySelector('[data-mode="props"]').click();
+  await wait(400);
+  check('props mode shows prop sport list', $('prop-sports').textContent.includes('NBA'));
+  check('events list (free) requested for NBA', calls.some((u) => u.pathname === '/v4/sports/basketball_nba/events'));
+  const evCall = calls.find((u) => u.pathname === '/v4/sports/basketball_nba/events');
+  check('events window uses ISO without milliseconds', /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/.test(evCall?.searchParams.get('commenceTimeFrom') || ''), evCall?.searchParams.get('commenceTimeFrom'));
+  check('prop cost = 1 game x 4 props x 1 = 4 credits', $('cost').textContent.includes('up to 4 credits'), $('cost').textContent);
+  check('prop cost explainer recommends paid plan', $('props-cost').textContent.includes('paid Odds API plan'));
+
+  $('fetch').click();
+  await wait(800);
+  const propCalls = calls.filter((u) => /\/events\/[^/]+\/odds$/.test(u.pathname));
+  check('one event-odds request per game', propCalls.length === 1, String(propCalls.length));
+  check('prop markets requested are the NBA defaults', propCalls[0]?.searchParams.get('markets') === 'player_points,player_rebounds,player_assists,player_threes', propCalls[0]?.searchParams.get('markets'));
+  const propCards = [...document.querySelectorAll('#list .arb')];
+  check('2 prop arbs shown', propCards.length === 2, String(propCards.length));
+  check('prop card titled by player', propCards.some((c) => c.querySelector('.matchup').textContent === 'Jalen Brunson'));
+  check('prop leg label "Over 25.5"', [...document.querySelectorAll('#list .leg-name')].some((e) => e.textContent === 'Over 25.5'));
+  check('no cover bets in props mode', !document.querySelector('.cover-bets'));
+
+  // 8. Back to lines keeps the earlier results (no refetch)
+  const n = calls.length;
+  document.querySelector('[data-mode="lines"]').click();
+  await wait(100);
+  check('switching back shows cached line results', document.querySelectorAll('#list .arb').length === 2 && calls.length === n);
+} catch (e) {
+  out.push('FAIL harness error: ' + e.message);
+}
+report();
+</script>
+</body>
+</html>

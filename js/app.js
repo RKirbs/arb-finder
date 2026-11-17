@@ -28,7 +28,8 @@ const state = {
   sports: store.get('sportsList', []), // [{key, group, title, active, has_outrights}]
   selectedSports: new Set(store.get('selectedSports', DEFAULT_SPORTS)),
   markets: new Set(store.get('markets', ['h2h', 'spreads', 'totals'])),
-  books: new Set(store.get('books', BOOKS.filter((b) => b.default).map((b) => b.key))),
+  // drop any saved book keys that are no longer offered (e.g. removed offshore books)
+  books: new Set(store.get('books', BOOKS.filter((b) => b.default).map((b) => b.key)).filter((k) => BOOK_BY_KEY[k])),
   propSport: store.get('propSport', 'basketball_nba'),
   propMarkets: store.get('propMarkets', {}), // { sportKey: [marketKeys] }
   propGames: store.get('propGames', 5),
@@ -237,13 +238,16 @@ async function loadPropEvents() {
     });
     const res = await fetch(`${API}/sports/${encodeURIComponent(sport)}/events?${params}`);
     readQuota(res);
-    if (!res.ok) return;
+    if (!res.ok) return { error: await apiError(res), status: res.status };
     const events = (await res.json()).sort((a, b) => Date.parse(a.commence_time) - Date.parse(b.commence_time));
     if (state.propSport === sport) {
       state.propEvents = { sport, events, at: Date.now() };
       renderCost();
     }
-  } catch { /* estimate just stays approximate */ }
+    return {};
+  } catch {
+    return { error: 'Could not reach The Odds API. Check your connection.' };
+  }
 }
 
 function propGamesToScan() {
@@ -498,7 +502,7 @@ async function fetchProps() {
   const markets = [...selectedPropMarkets()];
   state.propEvents = null; // force a fresh game list
   setStatus('Getting the game list (free)…');
-  await loadPropEvents();
+  const listed = (await loadPropEvents()) || {};
   const games = (state.propEvents?.events || [])
     .filter((e) => Date.parse(e.commence_time) > Date.now())
     .slice(0, state.propGames);
@@ -506,7 +510,8 @@ async function fetchProps() {
   const events = [];
   const errors = [];
   let fatal = null;
-  if (!games.length) fatal = `No upcoming ${PROP_SPORT_BY_KEY[sport]?.title || sport} games found in the next ${PROP_WINDOW_HOURS} hours.`;
+  if (listed.error) fatal = listed.error;
+  else if (!games.length) fatal = `No upcoming ${PROP_SPORT_BY_KEY[sport]?.title || sport} games found in the next ${PROP_WINDOW_HOURS} hours.`;
 
   for (const [i, g] of games.entries()) {
     setStatus(`Fetching props: ${g.away_team} @ ${g.home_team} (${i + 1} of ${games.length})…`);
@@ -683,7 +688,7 @@ function renderArb(arb) {
     h('div', { class: 'arb-foot' },
       h('span', {}, 'Total staked ', h('strong', {}, money(calc.staked))),
       h('span', { class: calc.minProfit >= 0 ? 'good' : 'bad' },
-        calc.minProfit >= 0 ? 'Guaranteed profit ' : 'Worst-case loss ',
+        calc.minProfit >= 0 ? 'Profit if every bet stands ' : 'Worst-case loss ',
         h('strong', {}, money(Math.abs(calc.minProfit))),
         Math.abs(calc.maxProfit - calc.minProfit) >= 0.01 ? h('span', { class: 'muted' }, ` (up to ${money(calc.maxProfit)})`) : null)),
     arb.isProp ? h('p', { class: 'note muted' }, 'If the player doesn’t play, books usually void the prop, but not always at every book. Check each book’s rules.') : null,

@@ -14,8 +14,10 @@ Why each visitor brings their own key:
 Scraping the sportsbooks directly would also be free, but it breaks their terms of service, they block it aggressively, and it would break every week.
 
 ### Books covered (free plan)
-DraftKings, FanDuel, BetMGM, theScore Bet, BetRivers, Hard Rock Bet, Bally Bet, betPARX, Fliff, plus exchanges and prediction markets (Novig, ProphetX, Kalshi, Polymarket US, BetOpenly) and offshore books (BetOnline, Bovada, LowVig, MyBookie, BetUS, …).
+State-licensed: DraftKings, FanDuel, BetMGM, theScore Bet, BetRivers, Hard Rock Bet, Bally Bet, betPARX. Exchanges and prediction markets: Novig, ProphetX, Kalshi, Polymarket US, BetOpenly. Sweepstakes: Fliff.
 Caesars, Fanatics, ReBet and Courtside need a paid Odds API plan. They appear in the list tagged "paid plan".
+
+**Deliberately excluded:** offshore books (Bovada, BetOnline, MyBookie, BetUS, LowVig, Betwhale, BetAnything), because they aren't licensed in any US state, and non-US prediction markets (Polymarket international, Limitless). Don't add these back to a public site.
 
 ### Player props
 The **Player props** tab scans over/under props (points, yards, strikeouts…) using the per-event endpoint `/v4/sports/{sport}/events/{id}/odds`. Listing games is free; each game costs `props × ceil(books / 10)` credits, so 5 NBA games × 4 props = 20 credits per scan. Props work on the free plan, but a paid plan (from $30/month for 20,000 credits) suits regular prop scanning. The UI and guide explain this.
@@ -24,7 +26,7 @@ The **Player props** tab scans over/under props (points, yards, strikeouts…) u
 Under game-line results, **Cover bets** lists the lowest-margin "normal" straight bets at each selected book (favourite or Over on popular sports), with the expected cost per $10. It uses data that's already loaded, so it costs no credits. It's there to help users mix recreational action in with arbs. The guide's "Avoid getting limited" section covers the full strategy and the things never to do (beards, multiple accounts, VPNs).
 
 ### Credit cost
-Each search costs about `sports × markets × ceil(books / 10)` credits. With the defaults (9 books, 3 markets) that's 3 credits per sport, so 6 sports cost 18 credits and a free key covers roughly 25 full searches a month. The site shows the estimate before each search and the real balance (from the API's response headers) afterwards. Loading the sports list is free.
+Each search costs about `sports × markets × ceil(books / 10)` credits. With the defaults (8 books, 3 markets) that's 3 credits per sport, so 6 sports cost 18 credits and a free key covers roughly 25 full searches a month. The site shows the estimate before each search and the real balance (from the API's response headers) afterwards. Loading the sports list is free.
 
 ## For users
 
@@ -38,7 +40,7 @@ ES modules need to be served over http, not opened as a file:
 cd "Arbitrage Finder Project"
 python3 -m http.server 8000
 # open http://localhost:8000          (add ?demo=1 to show sample data)
-# open http://localhost:8000/test/    (math tests; should say 22/22 passed)
+# open http://localhost:8000/test/    (math tests; should say all tests passed)
 ```
 
 ## Put it online (free)
@@ -87,6 +89,6 @@ Filters that cut down false positives:
 
 ## Things to know before sharing publicly
 
-- Keep the 21+ / 1-800-GAMBLER notice and the "not betting advice" text in the footer.
+- Keep the age notice, the 1-800-MY-RESET helpline (the national line since 2026; 1-800-GAMBLER is no longer the national number and is a trademark of another group), and the disclaimer.
 - Read The Odds API's terms of service. Bring-your-own-key keeps you clear of redistribution issues, but don't switch to one shared key on a public site without checking their terms.
 - Not affiliated with any sportsbook. Don't use sportsbook logos.
