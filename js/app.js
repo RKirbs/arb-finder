@@ -688,7 +688,7 @@ function renderArb(arb) {
     h('div', { class: 'arb-foot' },
       h('span', {}, 'Total staked ', h('strong', {}, money(calc.staked))),
       h('span', { class: calc.minProfit >= 0 ? 'good' : 'bad' },
-        calc.minProfit >= 0 ? 'Profit if every bet stands ' : 'Worst-case loss ',
+        calc.minProfit >= 0 ? 'Profit ' : 'Worst-case loss ',
         h('strong', {}, money(Math.abs(calc.minProfit))),
         Math.abs(calc.maxProfit - calc.minProfit) >= 0.01 ? h('span', { class: 'muted' }, ` (up to ${money(calc.maxProfit)})`) : null)),
     arb.isProp ? h('p', { class: 'note muted' }, 'If the player doesn’t play, books usually void the prop, but not always at every book. Check each book’s rules.') : null,
