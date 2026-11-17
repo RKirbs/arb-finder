@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Arb math tests</title></head>
+<body>
+<pre id="out">running…</pre>
+<script type="module">
+import { findArbs, findCoverBets, calcStakes, decimalToAmerican, legLabel } from '../js/arb.js';
+import { demoEvents, demoPropEvents } from '../js/demo-data.js';
+
+const results = [];
+const test = (name, fn) => { try { fn(); results.push(`PASS ${name}`); } catch (e) { results.push(`FAIL ${name}: ${e.message}`); } };
+const eq = (a, b, msg = '') => { if (a !== b) throw new Error(`${msg} expected ${JSON.stringify(b)}, got ${JSON.stringify(a)}`); };
+const near = (a, b, tol = 1e-6, msg = '') => { if (Math.abs(a - b) > tol) throw new Error(`${msg} expected ~${b}, got ${a}`); };
+
+const NOW = Date.parse('2026-11-17T12:00:00Z');
+const later = '2026-11-18T00:00:00Z';
+const fresh = '2026-11-17T11:59:00Z';
+const ev = (bookmakers, extra = {}) => ({ id: 'e', sport_key: 'x', commence_time: later, home_team: 'Home', away_team: 'Away', bookmakers, ...extra });
+const bm = (key, mkey, outcomes, last_update = fresh) => ({ key, title: key.toUpperCase(), last_update, markets: [{ key: mkey, last_update, outcomes }] });
+
+test('two-way moneyline arb uses best price per side', () => {
+  const r = findArbs([ev([
+    bm('a', 'h2h', [{ name: 'Home', price: 2.1 }, { name: 'Away', price: 1.8 }]),
+    bm('b', 'h2h', [{ name: 'Home', price: 1.87 }, { name: 'Away', price: 2.02 }]),
+  ])], { now: NOW });
+  eq(r.length, 1);
+  near(r[0].implied, 1 / 2.1 + 1 / 2.02);
+  near(r[0].profitPct, (1 / (1 / 2.1 + 1 / 2.02) - 1) * 100);
+  eq(r[0].legs.find((l) => l.name === 'Home').books[0].bookKey, 'a');
+  eq(r[0].legs.find((l) => l.name === 'Away').books[0].bookKey, 'b');
+});
+
+test('no arb when combined book is over 100%', () => {
+  const r = findArbs([ev([
+    bm('a', 'h2h', [{ name: 'Home', price: 1.91 }, { name: 'Away', price: 1.91 }]),
+    bm('b', 'h2h', [{ name: 'Home', price: 1.95 }, { name: 'Away', price: 1.87 }]),
+  ])], { now: NOW });
+  eq(r.length, 0);
+});
+
+test('3-way soccer requires the draw leg', () => {
+  // Without Draw these would look like a huge arb; with Draw covered it is a real 3-way calc.
+  const r = findArbs([ev([
+    bm('a', 'h2h', [{ name: 'Home', price: 2.1 }, { name: 'Draw', price: 3.4 }, { name: 'Away', price: 3.6 }]),
+    bm('b', 'h2h', [{ name: 'Home', price: 2.2 }, { name: 'Draw', price: 3.75 }, { name: 'Away', price: 3.8 }]),
+  ])], { now: NOW, minProfitPct: -100 });
+  eq(r.length, 1);
+  eq(r[0].legs.length, 3);
+  near(r[0].implied, 1 / 2.2 + 1 / 3.75 + 1 / 3.8);
+});
+
+test('spreads only pair opposite numbers (-2.5 with +2.5)', () => {
+  const r = findArbs([ev([
+    bm('a', 'spreads', [{ name: 'Home', price: 2.08, point: -2.5 }, { name: 'Away', price: 1.77, point: 2.5 }]),
+    bm('b', 'spreads', [{ name: 'Home', price: 1.83, point: -2.5 }, { name: 'Away', price: 2.0, point: 2.5 }]),
+    // Different line: Away +3.5 at a big price must NOT pair with Home -2.5
+    bm('c', 'spreads', [{ name: 'Home', price: 1.5, point: -3.5 }, { name: 'Away', price: 3.0, point: 3.5 }]),
+  ])], { now: NOW, minProfitPct: -100 });
+  const l25 = r.find((x) => x.line === -2.5);
+  const l35 = r.find((x) => x.line === -3.5);
+  near(l25.implied, 1 / 2.08 + 1 / 2.0);
+  near(l35.implied, 1 / 1.5 + 1 / 3.0);
+  eq(r.length, 2);
+});
+
+test('totals only pair the same number', () => {
+  const r = findArbs([ev([
+    bm('a', 'totals', [{ name: 'Over', price: 2.05, point: 47.5 }, { name: 'Under', price: 1.8, point: 47.5 }]),
+    bm('b', 'totals', [{ name: 'Over', price: 1.7, point: 48.5 }, { name: 'Under', price: 2.3, point: 48.5 }]),
+  ])], { now: NOW, minProfitPct: -100 });
+  eq(r.length, 2);
+  for (const x of r) eq(x.legs.every((l) => l.point === x.line), true, 'points match line');
+});
+
+test('one-sided line is ignored', () => {
+  const r = findArbs([ev([bm('a', 'totals', [{ name: 'Over', price: 3.0, point: 40 }])])], { now: NOW, minProfitPct: -100 });
+  eq(r.length, 0);
+});
+
+test('allowBooks excludes books you do not have', () => {
+  const events = [ev([
+    bm('a', 'h2h', [{ name: 'Home', price: 2.1 }, { name: 'Away', price: 1.8 }]),
+    bm('b', 'h2h', [{ name: 'Home', price: 1.87 }, { name: 'Away', price: 2.02 }]),
+  ])];
+  eq(findArbs(events, { now: NOW, allowBooks: new Set(['a']) }).length, 0);
+});
+
+test('stale prices are dropped by maxAgeMinutes', () => {
+  const events = [ev([
+    bm('a', 'h2h', [{ name: 'Home', price: 2.1 }, { name: 'Away', price: 1.8 }]),
+    bm('b', 'h2h', [{ name: 'Home', price: 1.87 }, { name: 'Away', price: 2.02 }], '2026-11-17T09:00:00Z'),
+  ])];
+  eq(findArbs(events, { now: NOW, maxAgeMinutes: 60 }).length, 0);
+  eq(findArbs(events, { now: NOW, maxAgeMinutes: 0 }).length, 1);
+});
+
+test('live games skipped unless asked', () => {
+  const events = [ev([
+    bm('a', 'h2h', [{ name: 'Home', price: 2.1 }, { name: 'Away', price: 1.8 }]),
+    bm('b', 'h2h', [{ name: 'Home', price: 1.87 }, { name: 'Away', price: 2.02 }]),
+  ], { commence_time: '2026-11-17T11:00:00Z' })];
+  eq(findArbs(events, { now: NOW }).length, 0);
+  eq(findArbs(events, { now: NOW, excludeLive: false })[0].event.live, true);
+});
+
+test('ties list every book at the best price', () => {
+  const r = findArbs([ev([
+    bm('a', 'h2h', [{ name: 'Home', price: 2.1 }, { name: 'Away', price: 1.8 }]),
+    bm('b', 'h2h', [{ name: 'Home', price: 2.1 }, { name: 'Away', price: 2.02 }]),
+  ])], { now: NOW });
+  eq(r[0].legs.find((l) => l.name === 'Home').books.length, 2);
+});
+
+test('stakes equalise payouts and sum to bankroll', () => {
+  const c = calcStakes([2.1, 2.02], 100);
+  near(c.staked, 100);
+  near(c.payouts[0], c.payouts[1], 1e-9);
+  near(c.minProfit, 100 / (1 / 2.1 + 1 / 2.02) - 100);
+});
+
+test('rounded stakes report worst-case profit', () => {
+  const c = calcStakes([2.1, 2.02], 100, 5);
+  eq(c.stakes.every((s) => s % 5 === 0), true);
+  near(c.minProfit, Math.min(...c.payouts) - c.staked);
+});
+
+test('decimal to American', () => {
+  eq(decimalToAmerican(2.1), '+110');
+  eq(decimalToAmerican(1.91), '-110');
+  eq(decimalToAmerican(2.0), '+100');
+  eq(decimalToAmerican(1.5), '-200');
+});
+
+test('leg labels', () => {
+  eq(legLabel('spreads', { name: 'Bills', point: 2.5 }), 'Bills +2.5');
+  eq(legLabel('spreads', { name: 'Chiefs', point: -2.5 }), 'Chiefs -2.5');
+  eq(legLabel('totals', { name: 'Over', point: 47.5 }), 'Over 47.5');
+});
+
+test('demo data: 3 arbs with defaults, 5 with filters off', () => {
+  const now = Date.now();
+  const d = demoEvents(now);
+  eq(findArbs(d, { now, maxAgeMinutes: 60, excludeLive: true }).length, 3);
+  eq(findArbs(d, { now, maxAgeMinutes: 0, excludeLive: false }).length, 5);
+});
+
+const prop = (key, mkey, rows, last_update = fresh) => ({ key, title: key, last_update, markets: [{ key: mkey, last_update,
+  outcomes: rows.map(([name, price, point, description]) => ({ name, price, point, description })) }] });
+
+test('player prop arb pairs same player + same line', () => {
+  const r = findArbs([ev([
+    prop('a', 'player_points', [['Over', 2.08, 25.5, 'Brunson'], ['Under', 1.77, 25.5, 'Brunson']]),
+    prop('b', 'player_points', [['Over', 1.83, 25.5, 'Brunson'], ['Under', 2.0, 25.5, 'Brunson']]),
+  ])], { now: NOW });
+  eq(r.length, 1);
+  eq(r[0].isProp, true);
+  eq(r[0].player, 'Brunson');
+  near(r[0].implied, 1 / 2.08 + 1 / 2.0);
+  eq(legLabel(r[0].market, r[0].legs[0]), 'Over 25.5');
+});
+
+test('props never pair different players or different lines', () => {
+  const r = findArbs([ev([
+    prop('a', 'player_points', [['Over', 3.0, 25.5, 'Brunson'], ['Under', 1.3, 25.5, 'Brunson']]),
+    prop('b', 'player_points', [['Over', 1.3, 25.5, 'Tatum'], ['Under', 3.0, 25.5, 'Tatum']]),
+    prop('c', 'player_points', [['Over', 1.3, 24.5, 'Brunson'], ['Under', 3.0, 24.5, 'Brunson']]),
+  ])], { now: NOW });
+  eq(r.length, 0);
+});
+
+test('one-sided (Over only) props are ignored', () => {
+  const r = findArbs([ev([
+    prop('a', 'player_tds_over', [['Over', 5.0, 0.5, 'Kelce']]),
+    prop('b', 'player_tds_over', [['Over', 6.0, 0.5, 'Kelce']]),
+  ])], { now: NOW, minProfitPct: -100 });
+  eq(r.length, 0);
+});
+
+test('different prop markets for same player do not mix', () => {
+  const r = findArbs([ev([
+    prop('a', 'player_points', [['Over', 3.0, 8.5, 'Hart'], ['Under', 1.3, 8.5, 'Hart']]),
+    prop('b', 'player_rebounds', [['Over', 1.3, 8.5, 'Hart'], ['Under', 3.0, 8.5, 'Hart']]),
+  ])], { now: NOW });
+  eq(r.length, 0);
+});
+
+test('demo props: 2 arbs (Brunson pts, Tatum threes), Hart lines not paired', () => {
+  const now = Date.now();
+  const r = findArbs(demoPropEvents(now), { now, maxAgeMinutes: 60 });
+  eq(r.length, 2);
+  eq(r.map((x) => x.player).sort().join(','), 'Jalen Brunson,Jayson Tatum');
+});
+
+test('cover bets: lowest-margin line per book, favourite/over side, one per game', () => {
+  const evA = ev([
+    bm('dk', 'h2h', [{ name: 'Home', price: 1.5 }, { name: 'Away', price: 2.5 }]),       // margin ~6.7%
+  ], { id: 'A', sport_key: 'basketball_nba' });
+  evA.bookmakers[0].markets.push({ key: 'totals', last_update: fresh, outcomes: [
+    { name: 'Over', price: 1.95, point: 220.5 }, { name: 'Under', price: 1.95, point: 220.5 } ] }); // margin ~-2.5% (cheapest)
+  const evB = ev([bm('dk', 'h2h', [{ name: 'Home', price: 1.91 }, { name: 'Away', price: 1.91 }])], { id: 'B', sport_key: 'basketball_nba' });
+  const out = findCoverBets([evA, evB], { now: NOW, perBook: 2 });
+  eq(out.length, 1);
+  eq(out[0].picks.length, 2);
+  eq(out[0].picks[0].event.id, 'A');
+  eq(out[0].picks[0].leg.name, 'Over');
+  eq(out[0].picks[1].event.id, 'B');
+  near(out[0].picks[1].margin, 1 - 1 / (2 / 1.91));
+});
+
+test('cover bets prefer popular sports and skip started games', () => {
+  const pop = ev([bm('dk', 'h2h', [{ name: 'Home', price: 1.8 }, { name: 'Away', price: 1.95 }])], { id: 'P', sport_key: 'americanfootball_nfl' });
+  const obscure = ev([bm('dk', 'h2h', [{ name: 'Home', price: 1.98 }, { name: 'Away', price: 1.98 }])], { id: 'O', sport_key: 'rugby' });
+  const live = ev([bm('dk', 'h2h', [{ name: 'Home', price: 2.0 }, { name: 'Away', price: 2.0 }])], { id: 'L', sport_key: 'americanfootball_nfl', commence_time: '2026-11-17T11:00:00Z' });
+  const out = findCoverBets([obscure, live, pop], { now: NOW, perBook: 1, popularSports: new Set(['americanfootball_nfl']) });
+  eq(out[0].picks[0].event.id, 'P');
+  eq(out[0].picks[0].leg.name, 'Home', 'favourite');
+});
+
+const failed = results.filter((r) => r.startsWith('FAIL')).length;
+document.getElementById('out').textContent = results.join('\n') + `\n\n${results.length - failed}/${results.length} passed`;
+document.title = failed ? 'FAILED' : 'PASSED';
+</script>
+</body>
+</html>

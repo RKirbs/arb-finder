@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arb Finder</title>
+  <meta name="description" content="Free sports betting arbitrage finder for US sportsbooks. Compares DraftKings, FanDuel, BetMGM, theScore Bet, BetRivers, Hard Rock Bet and more. Runs entirely in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23167a55'/%3E%3Cpath d='M8 21l6-6 4 4 6-8' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand brand-link" href="index.html">
+        <span class="logo" aria-hidden="true"></span>
+        <div>
+          <h1>Arb Finder</h1>
+          <p class="tagline">Find guaranteed-profit lines across US sportsbooks</p>
+        </div>
+      </a>
+      <div class="topbar-right">
+        <div class="quota" id="quota" hidden></div>
+        <nav class="nav">
+          <a href="index.html" aria-current="page">Finder</a>
+          <a href="guide.html">Guide</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <aside class="panel settings" aria-label="Settings">
+      <div class="mode-switch" role="tablist" aria-label="What to search">
+        <button type="button" role="tab" data-mode="lines">Game lines</button>
+        <button type="button" role="tab" data-mode="props">Player props</button>
+      </div>
+
+      <section class="block">
+        <h2>1. Odds API key</h2>
+        <p class="hint">Odds come from <a href="https://the-odds-api.com/" target="_blank" rel="noopener">The Odds API</a>. Their <strong>free</strong> plan works fine: 500 credits a month. Your key is saved only in this browser and only ever sent to The Odds API.</p>
+        <form id="key-form" class="key-row" autocomplete="off">
+          <input id="api-key" type="password" placeholder="Paste your API key" spellcheck="false" aria-label="API key">
+          <button type="submit" class="btn">Save</button>
+        </form>
+        <p class="key-status" id="key-status" role="status" aria-live="polite" hidden></p>
+        <div class="key-links">
+          <a href="https://the-odds-api.com/#get-access" target="_blank" rel="noopener">Get a free key →</a>
+          <a href="guide.html#api-key">Step-by-step help</a>
+          <button type="button" class="link-btn" id="clear-key" hidden>Forget key</button>
+        </div>
+      </section>
+
+      <div data-show="lines">
+        <section class="block">
+        <h2>2. Sports</h2>
+        <div id="sports" class="sports"><p class="hint">Save a key to load the sports currently in season.</p></div>
+      </section>
+
+        <section class="block">
+        <h2>3. Markets</h2>
+        <div class="chips" id="markets">
+          <label class="chip"><input type="checkbox" value="h2h"> Moneyline</label>
+          <label class="chip"><input type="checkbox" value="spreads"> Spread</label>
+          <label class="chip"><input type="checkbox" value="totals"> Total</label>
+        </div>
+      </section>
+
+      </div>
+
+      <div data-show="props" hidden>
+        <section class="block">
+          <h2>2. Sport</h2>
+          <div id="prop-sports"></div>
+        </section>
+        <section class="block">
+          <h2>3. Props</h2>
+          <p class="hint">Over/under player props. Each prop you tick costs credits for every game scanned.</p>
+          <div id="prop-markets"></div>
+          <label class="inline-field">Games to scan
+            <select id="prop-games">
+              <option value="1">next 1 game</option>
+              <option value="3">next 3 games</option>
+              <option value="5">next 5 games</option>
+              <option value="10">next 10 games</option>
+              <option value="20">next 20 games</option>
+            </select>
+          </label>
+          <p class="props-cost" id="props-cost"></p>
+        </section>
+      </div>
+
+      <section class="block">
+        <h2>4. Your sportsbooks</h2>
+        <p class="hint">Tick only books you can actually bet at. Every 10 books costs 1 credit per market, per sport (or per game for props).</p>
+        <div id="books"></div>
+      </section>
+
+      <section class="block fetch-block">
+        <div class="cost" id="cost"></div>
+        <button id="fetch" class="btn btn-primary btn-wide" type="button">Find arbs</button>
+        <button id="demo" class="link-btn" type="button">or load sample data</button>
+        <p class="status" id="status" role="status" aria-live="polite"></p>
+      </section>
+    </aside>
+
+    <section class="results" aria-label="Results">
+      <div class="panel filters">
+        <label>Min profit
+          <span class="input-suffix"><input id="f-minprofit" type="number" step="0.1" min="-10" max="50"><span>%</span></span>
+        </label>
+        <label>Bankroll
+          <span class="input-prefix"><span>$</span><input id="f-bankroll" type="number" step="10" min="1"></span>
+        </label>
+        <label>Round stakes to
+          <select id="f-round">
+            <option value="0">exact cents</option>
+            <option value="1">$1</option>
+            <option value="5">$5</option>
+            <option value="10">$10</option>
+          </select>
+        </label>
+        <label>Ignore odds older than
+          <select id="f-maxage">
+            <option value="15">15 min</option>
+            <option value="30">30 min</option>
+            <option value="60">1 hour</option>
+            <option value="180">3 hours</option>
+            <option value="0">never</option>
+          </select>
+        </label>
+        <label>Odds
+          <select id="f-format">
+            <option value="american">American</option>
+            <option value="decimal">Decimal</option>
+          </select>
+        </label>
+        <label class="check"><input id="f-live" type="checkbox"> Skip games already started</label>
+      </div>
+
+      <div id="summary" class="summary"></div>
+      <div id="list" class="list"></div>
+      <div id="cover" class="cover"></div>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <p><strong>How it works.</strong> For every game, the finder takes the best price on each side of a market across the books you selected. If backing every side at those prices costs less than what any single result pays back, the line is an arbitrage. The stakes shown split your bankroll so every outcome pays the same.</p>
+    <p><strong>Before you bet.</strong> Odds move fast. Confirm every price on the sportsbook before placing a leg, and place the harder-to-get leg first. Books can limit accounts that arb, void bets on obvious errors, and apply different rules to things like overtime or postponements. Exchange fees are not included. Nothing here is betting advice.</p>
+    <p>Must be 21+ and in a state where sports betting is legal. Gambling problem? Call or text <a href="tel:18004262537">1-800-GAMBLER</a>.</p>
+    <p>New to arbing? Read the <a href="guide.html">full guide</a>: how it works, getting a free key, placing bets safely, and the risks.</p>
+    <p class="muted">Odds data from The Odds API. Not affiliated with any sportsbook or with The Odds API. Free, no ads, no tracking.</p>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

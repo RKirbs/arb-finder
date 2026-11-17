@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arb Finder Guide</title>
+  <meta name="description" content="How sports betting arbitrage works, how to get a free Odds API key, and how to use Arb Finder step by step.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23167a55'/%3E%3Cpath d='M8 21l6-6 4 4 6-8' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand brand-link" href="index.html">
+        <span class="logo" aria-hidden="true"></span>
+        <div>
+          <span class="brand-name">Arb Finder</span>
+          <p class="tagline">Find guaranteed-profit lines across US sportsbooks</p>
+        </div>
+      </a>
+      <nav class="nav">
+        <a href="index.html">Finder</a>
+        <a href="guide.html" aria-current="page">Guide</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap guide-layout">
+    <nav class="toc panel" aria-label="Contents">
+      <p class="toc-title">On this page</p>
+      <ol>
+        <li><a href="#quick-start">Quick start</a></li>
+        <li><a href="#what-is-arb">What arbitrage is</a></li>
+        <li><a href="#cost">Do I have to pay?</a></li>
+        <li><a href="#api-key">Get your free API key</a></li>
+        <li><a href="#enter-key">Enter your key</a></li>
+        <li><a href="#first-search">Run your first search</a></li>
+        <li><a href="#read-result">Read a result</a></li>
+        <li><a href="#place-bets">Place the bets</a></li>
+        <li><a href="#stay-unlimited">Avoid getting limited</a></li>
+        <li><a href="#props">Player prop arbs</a></li>
+        <li><a href="#settings">Every setting explained</a></li>
+        <li><a href="#credits">Make your credits last</a></li>
+        <li><a href="#risks">Risks and honest truths</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ol>
+    </nav>
+
+    <main class="doc">
+      <h1>How to use Arb Finder</h1>
+      <p class="lede">Arb Finder compares odds across US sportsbooks and flags games where you can bet every side and make money whatever happens. It's free, it runs in your browser, and setup takes about three minutes.</p>
+
+      <!-- QUICK START -->
+      <section id="quick-start" class="callout">
+        <h2>Quick start</h2>
+        <ol class="steps compact">
+          <li>Get a free API key from <a href="https://the-odds-api.com/" target="_blank" rel="noopener">the-odds-api.com</a>. It arrives by email. <a href="#api-key">Detailed steps</a></li>
+          <li>Open the <a href="index.html">Finder</a>, paste the key into box <strong>1</strong>, and press <strong>Save</strong>.</li>
+          <li>Tick the sports you want and <strong>only the sportsbooks you have accounts at</strong>.</li>
+          <li>Press <strong>Find arbs</strong>. Check each price on the sportsbook, then place every leg.</li>
+        </ol>
+        <p class="small muted">Want to look around first? <a href="index.html?demo=1">Open the Finder with sample data</a>. It doesn't need a key.</p>
+      </section>
+
+      <!-- WHAT IS ARB -->
+      <section id="what-is-arb">
+        <h2>What arbitrage betting is</h2>
+        <p>Sportsbooks don't always agree on prices. Sometimes one book is generous on one team while a different book is generous on the other. When the gap is big enough, you can bet <em>both</em> sides at different books and be paid more than you staked <strong>whichever team wins</strong>. That's an arbitrage, or "arb".</p>
+
+        <h3>A worked example</h3>
+        <p>Celtics at Knicks. FanDuel has the Knicks at <strong>+110</strong>. BetMGM has the Celtics at <strong>+102</strong>. You have $100 to bet.</p>
+        <div class="table-scroll">
+          <table class="example">
+            <thead><tr><th>Bet</th><th>Book</th><th class="num">Odds</th><th class="num">Stake</th><th class="num">Returns</th></tr></thead>
+            <tbody>
+              <tr><td>Knicks win</td><td>FanDuel</td><td class="num">+110</td><td class="num">$49.03</td><td class="num">$102.96</td></tr>
+              <tr><td>Celtics win</td><td>BetMGM</td><td class="num">+102</td><td class="num">$50.97</td><td class="num">$102.96</td></tr>
+            </tbody>
+            <tfoot><tr><td colspan="3">Total</td><td class="num">$100.00</td><td class="num good"><strong>+$2.96</strong></td></tr></tfoot>
+          </table>
+        </div>
+        <p>One bet loses and the other wins. Either way you get back $102.96 on $100, a 2.96% profit with no risk on the result.</p>
+
+        <h3>How the Finder spots it</h3>
+        <p>Every price implies a probability. +110 implies 47.6% and +102 implies 49.5%. A fair market adds up to 100%, and books normally build in their margin so it adds up to about 104–105%. If the <em>best</em> price on each side, taken from different books, adds up to <strong>less than 100%</strong>, there's an arb:</p>
+        <p class="formula">47.6% + 49.5% = 97.1% &nbsp;→&nbsp; profit = 100 ÷ 97.1 − 1 = <strong>2.96%</strong></p>
+        <p>The Finder does this for every game, every market and every combination of your books, then sizes your stakes so each outcome pays out the same amount. It checks three kinds of market:</p>
+        <ul>
+          <li><strong>Moneyline</strong>: who wins. Soccer has three outcomes (home, draw, away), so you place three bets.</li>
+          <li><strong>Spread</strong>: Team A −2.5 paired with Team B +2.5. Only exact opposite numbers are paired.</li>
+          <li><strong>Total</strong>: Over 47.5 paired with Under 47.5. Only the same number is paired.</li>
+        </ul>
+        <p>Realistic arbs are usually <strong>0.5%–3%</strong>. That's small per bet, but it doesn't depend on picking winners.</p>
+      </section>
+
+      <!-- COST -->
+      <section id="cost">
+        <h2>Do I have to pay anything?</h2>
+        <p><strong>No.</strong> Arb Finder is free, and the odds come from <a href="https://the-odds-api.com/" target="_blank" rel="noopener">The Odds API</a>, which has a free plan. You need your own key because the free plan gives each person a monthly allowance of searches. One shared key would run out within an hour for everyone.</p>
+        <div class="table-scroll">
+          <table class="example">
+            <thead><tr><th>Odds API plan</th><th class="num">Price</th><th class="num">Credits / month</th><th>Sportsbooks</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Starter (free)</strong></td><td class="num">$0</td><td class="num">500</td><td>DraftKings, FanDuel, BetMGM, theScore Bet, BetRivers, Hard Rock Bet, Bally Bet, betPARX, Fliff, exchanges (Kalshi, Novig, ProphetX, Polymarket US…), offshore books</td></tr>
+              <tr><td>Paid tiers</td><td class="num">from $30</td><td class="num">from 20,000</td><td>Everything above <strong>plus Caesars, Fanatics, ReBet, Courtside</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small muted">Prices as listed by The Odds API in November 2026. Check <a href="https://the-odds-api.com/#get-access" target="_blank" rel="noopener">their pricing</a> for current numbers. Arb Finder isn't affiliated with The Odds API and doesn't earn anything if you upgrade.</p>
+        <p>500 free credits is roughly <strong>25–40 game-line searches a month</strong> with sensible settings (see <a href="#credits">Make your credits last</a>). <strong>Player props work on the free plan too, but they're charged per game, so they use credits much faster</strong> (see <a href="#props">Player prop arbs</a>). Upgrade if you want to scan props regularly, search many times a day, or need Caesars or Fanatics.</p>
+      </section>
+
+      <!-- API KEY -->
+      <section id="api-key">
+        <h2>Get your free API key</h2>
+        <ol class="steps">
+          <li>
+            <h3>Go to The Odds API</h3>
+            <p>Open <a href="https://the-odds-api.com/" target="_blank" rel="noopener">the-odds-api.com</a> and click <strong>Get API Key</strong> near the top of the page. It takes you to the plans section.</p>
+          </li>
+          <li>
+            <h3>Choose the Starter plan</h3>
+            <p>Pick <strong>Starter</strong>, the one marked <strong>FREE</strong> with 500 credits. Don't pick a paid tier unless you want one.</p>
+          </li>
+          <li>
+            <h3>Enter your email</h3>
+            <p>Fill in the short signup form. The key is sent to that email address, so use one you can check now.</p>
+          </li>
+          <li>
+            <h3>Find the key in your inbox</h3>
+            <p>Look for an email from The Odds API containing your key. <strong>If you can't find it after a few minutes, check spam and promotions.</strong> The key is one long string of letters and numbers, like:</p>
+            <p class="key-sample"><code>a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6</code></p>
+          </li>
+          <li>
+            <h3>Copy the whole key</h3>
+            <p>Copy the whole string, with no spaces before or after it. Keep the email: The Odds API also has an account dashboard at <a href="https://dash.the-odds-api.com/" target="_blank" rel="noopener">dash.the-odds-api.com</a> for managing your plan.</p>
+          </li>
+        </ol>
+        <p class="callout small"><strong>Treat the key like a password.</strong> Anyone who has it can use up your monthly credits. Don't post it in Discord, Reddit or screenshots.</p>
+      </section>
+
+      <!-- ENTER KEY -->
+      <section id="enter-key">
+        <h2>Enter your key in Arb Finder</h2>
+        <ol class="steps">
+          <li>
+            <h3>Open the Finder</h3>
+            <p>Go to the <a href="index.html">Finder</a>. The first box on the left is <strong>1. Odds API key</strong>.</p>
+          </li>
+          <li>
+            <h3>Paste and press Save</h3>
+            <p>Paste the key into the box and press <strong>Save</strong>. The Finder checks the key straight away, which uses no credits. Within a second or two you should see <span class="good"><strong>"Key works"</strong></span> and the list of sports in season under <strong>2. Sports</strong>. Your remaining credits appear in the top right.</p>
+          </li>
+          <li>
+            <h3>If it says the key was rejected</h3>
+            <ul>
+              <li>Check you copied the <em>whole</em> key, with no missing characters and no extra spaces.</li>
+              <li>New keys can take a minute or two to activate. Wait, then press Save again.</li>
+              <li>If it worked before, you may have used all your credits for the month. They reset on your plan's monthly date.</li>
+            </ul>
+          </li>
+        </ol>
+        <h3>Where your key is stored</h3>
+        <p>The key is saved <strong>only in your own browser</strong> (localStorage), so you don't need to paste it again next time. It's only ever sent directly to The Odds API. Arb Finder has no server, no accounts and no tracking. Nobody else, including whoever runs this site, can see your key. To remove it, click <strong>Forget key</strong> under the key box. On a new phone or computer you'll need to paste it once there too.</p>
+      </section>
+
+      <!-- FIRST SEARCH -->
+      <section id="first-search">
+        <h2>Run your first search</h2>
+        <ol class="steps">
+          <li>
+            <h3>Pick sports (box 2)</h3>
+            <p>Only sports in season are listed. Start with two or three you know, like NFL, NBA or NHL. Every sport you tick costs credits on each search.</p>
+          </li>
+          <li>
+            <h3>Pick markets (box 3)</h3>
+            <p>Moneyline, Spread and Total. Each market you tick costs 1 credit per sport, for up to 10 books.</p>
+          </li>
+          <li>
+            <h3>Pick your sportsbooks (box 4). This step matters most.</h3>
+            <p>Tick <strong>only books you have a funded account at and can legally bet at where you are</strong>. An arb that needs a book you can't use is worthless. Nine books are ticked by default, so untick any you don't use. Books marked <span class="tag">paid plan</span> only return odds with a paid Odds API key.</p>
+          </li>
+          <li>
+            <h3>Check the cost and press Find arbs</h3>
+            <p>Above the button you'll see something like <em>"This search uses about 6 credits."</em> Press <strong>Find arbs</strong>. Results usually show up within a few seconds, ranked by profit.</p>
+          </li>
+        </ol>
+        <p><strong>Seeing "Nothing right now" is normal.</strong> Real arbs are rare and usually last minutes. Try more books, more sports, or a different time of day. Set <strong>Min profit</strong> to −1% to see the closest lines and get a feel for how the tool works.</p>
+      </section>
+
+      <!-- READ A RESULT -->
+      <section id="read-result">
+        <h2>Read a result</h2>
+        <figure class="anatomy panel">
+          <div class="arb-head">
+            <div class="profit">+2.96%</div>
+            <div class="arb-title">
+              <div class="matchup">Boston Celtics @ New York Knicks</div>
+              <div class="meta"><span class="tag">NBA</span><span class="tag market">Moneyline</span><span class="muted">Tue 7:30 PM</span></div>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table class="legs">
+              <thead><tr><th>Bet</th><th>Book</th><th class="num">Odds</th><th class="num">Stake</th><th class="num">Returns</th></tr></thead>
+              <tbody>
+                <tr><td><span class="leg-name">Boston Celtics</span></td><td>BetMGM<div class="muted small">updated 1m ago</div></td><td class="num">+102</td><td class="num strong">$51.00</td><td class="num">$103.02</td></tr>
+                <tr><td><span class="leg-name">New York Knicks</span></td><td>FanDuel<div class="muted small">updated 4m ago</div></td><td class="num">+110</td><td class="num strong">$49.00</td><td class="num">$102.90</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="arb-foot"><span>Total staked <strong>$100.00</strong></span><span class="good">Guaranteed profit <strong>$2.90</strong> <span class="muted">(up to $3.02)</span></span></div>
+        </figure>
+        <dl class="defs">
+          <dt>+2.96%</dt><dd>Return on everything you stake, whichever side wins.</dd>
+          <dt>Bet</dt><dd>Exactly what to bet. For spreads and totals the number matters: "Bills +2.5" isn't the same bet as "Bills +3".</dd>
+          <dt>Book</dt><dd>Where to place that leg. If several books show the same best price, all of them are listed. "Updated" is when The Odds API last confirmed that price.</dd>
+          <dt>Odds</dt><dd>The price you need. If the book now shows something worse, the arb may be gone.</dd>
+          <dt>Stake</dt><dd>How much to bet on that leg, based on the Bankroll filter.</dd>
+          <dt>Returns</dt><dd>What that leg pays back (stake plus winnings) if it wins.</dd>
+          <dt>Guaranteed profit</dt><dd>The worst-case profit after rounding. "Up to" is the best case: rounding means the outcomes pay slightly different amounts.</dd>
+        </dl>
+      </section>
+
+      <!-- PLACE BETS -->
+      <section id="place-bets">
+        <h2>Place the bets</h2>
+        <p>The Finder only shows opportunities. It doesn't place bets. Do this for every arb:</p>
+        <ol class="steps compact">
+          <li><strong>Open both (or all three) sportsbooks</strong> to the exact game and market.</li>
+          <li><strong>Check every price.</strong> The Finder's data can be several minutes old. If any price has moved against you, work out whether it's still profitable (the Finder can recalculate after a refresh) or skip it.</li>
+          <li><strong>Check the bet is the same at every book.</strong> Same line (−2.5 vs +2.5), same period (full game, not first half), and the same rules for overtime or a draw.</li>
+          <li><strong>Place the leg most likely to move or be refused first.</strong> That's usually the one with the unusually good price. Once it's accepted, place the other leg(s) straight away.</li>
+          <li><strong>Make sure each bet was accepted at the stake and odds you wanted.</strong> Books sometimes cut your maximum stake or change the price on the bet slip.</li>
+        </ol>
+        <div class="callout small">
+          <strong>If one leg gets refused after the other is placed,</strong> you have an open bet that isn't covered. Look for the next-best price on the other side (lower Min profit to see near-misses). A small guaranteed loss is often better than an uncovered bet. Don't chase it.
+        </div>
+      </section>
+
+
+      <!-- STAY UNLIMITED -->
+      <section id="stay-unlimited">
+        <h2>Avoid getting limited (for longer)</h2>
+        <p>Getting limited is the main reason arbing stops working. Nothing makes an account impossible to limit. Books use automated systems that look at <em>how</em> you bet, not just whether you win. But how you bet does change how long an account lasts. Here's what helps, roughly in order of impact.</p>
+
+        <ol class="steps">
+          <li>
+            <h3>Put the "normal" leg on an exchange</h3>
+            <p>In most arbs, one price is out of line (a sportsbook slow to move) and the other is close to the market. Bet the out-of-line leg at the sportsbook and the other leg at an <strong>exchange or prediction market</strong>: Novig, ProphetX, Kalshi or Polymarket US. Exchanges match you against other bettors, so they generally don't limit winners, and your sportsbooks see half as many arb bets. Tick the exchanges under <strong>4. Your sportsbooks</strong> to include them. Their fees come out of your profit.</p>
+          </li>
+          <li>
+            <h3>Mix in small "cover bets" on popular games</h3>
+            <p>Books flag accounts where every bet has an edge. Regular customers bet the big games: primetime NFL, national-TV NBA, the favorite, the Over. A few of those small bets make your account look like everyone else's.</p>
+            <p>The Finder helps with this. Under game-line results, open <strong>Cover bets</strong>. It lists the cheapest of these bets at each of your books right now, with the expected cost of a $10 bet. It uses the odds you've already loaded, so it costs no credits.</p>
+            <ul>
+              <li><strong>Straight bets are the cheapest disguise.</strong> A standard −110/−110 line costs about 45¢ per $10 bet on average.</li>
+              <li><strong>Small parlays look the most "recreational" but cost the most.</strong> Books keep a much bigger cut on parlays, especially same-game parlays: often several times what they keep on a straight bet. If you want parlays in the mix, keep them small ($1–$5), 2–3 legs, on the biggest game of the day.</li>
+              <li><strong>Budget them.</strong> Cover bets lose money on average. Treat them as a business cost, track them, and don't let them eat your arb profit. There's no magic ratio. The goal is that your betting history doesn't consist <em>only</em> of arbs.</li>
+            </ul>
+          </li>
+          <li>
+            <h3>Bet round amounts</h3>
+            <p>$50, not $48.37. Set <strong>Round stakes to</strong> $5 or $10. The Finder recalculates the worst-case profit after rounding, so you can see what it costs (usually cents).</p>
+          </li>
+          <li>
+            <h3>Skip thin arbs at books you want to keep</h3>
+            <p>A 0.4% arb makes 40¢ per $100 but uses up as much account goodwill as a 3% one. Save your soft-book bets for bigger edges, and use Min profit to filter.</p>
+          </li>
+          <li>
+            <h3>Go easy on props and obscure markets</h3>
+            <p>Player props, small-college games and niche leagues have low limits and get the most scrutiny. Main lines on major sports draw the least attention.</p>
+          </li>
+          <li>
+            <h3>Vary your size and use the account like a customer</h3>
+            <p>Don't always bet the maximum the book allows. Leave a balance in rather than withdrawing after every win. Taking promos is fine, but accounts that <em>only</em> bet promos get flagged too.</p>
+          </li>
+        </ol>
+
+        <div class="callout callout-bad small">
+          <p><strong>Never do these.</strong> They break the books' terms, books can keep your balance, and some are illegal:</p>
+          <ul>
+            <li>Betting through accounts in someone else's name, or having friends or family bet for you ("beards")</li>
+            <li>Opening more than one account at the same book</li>
+            <li>Using a VPN or location spoofing to bet from outside a legal state</li>
+            <li>Giving false information during identity checks</li>
+          </ul>
+        </div>
+
+        <h3>When you do get limited</h3>
+        <p>It happens to nearly everyone who arbs, so don't take it personally. Withdraw your balance, untick that book in the Finder, and move on to books and exchanges you haven't leaned on yet. Limited accounts often still get promos and odds boosts, which can still be worth using.</p>
+      </section>
+
+      <!-- PROPS -->
+      <section id="props">
+        <h2>Player prop arbs</h2>
+        <p>Player props (points, rebounds, passing yards, strikeouts…) are where books disagree most. Each game has hundreds of prop lines, prices react to injury and lineup news at different speeds, and fewer bettors correct the mistakes. That means more arbs than on game lines, but they cost more to find and come with extra risks.</p>
+
+        <h3>How to scan props</h3>
+        <ol class="steps compact">
+          <li>At the top of the Finder's left panel, switch from <strong>Game lines</strong> to <strong>Player props</strong>.</li>
+          <li><strong>Pick one sport.</strong> Props are scanned one sport at a time.</li>
+          <li><strong>Pick props.</strong> The defaults are the ones books offer most widely (for the NBA: points, rebounds, assists, 3-pointers). Every extra prop costs more.</li>
+          <li><strong>Pick how many games to scan</strong>, starting with the soonest. Most books post props on game day, so games tonight usually have the most lines.</li>
+          <li>Check the credit estimate and press <strong>Find prop arbs</strong>.</li>
+        </ol>
+        <p>The Finder only pairs an Over and an Under on the <strong>same player, same stat and same number</strong>, such as Brunson Over 25.5 points at one book with Brunson Under 25.5 at another. Different numbers (Over 25.5 vs Under 26.5) are never paired, because both bets could lose.</p>
+
+        <h3>Why props cost more credits</h3>
+        <p>For game lines, one request covers every game in a sport. For props, The Odds API charges <strong>per game</strong>:</p>
+        <p class="formula">credits per scan = games × props × (1 for every 10 books)</p>
+        <div class="table-scroll">
+          <table class="example">
+            <thead><tr><th>Prop scan (≤10 books)</th><th class="num">Credits</th><th class="num">Scans on free 500</th><th class="num">Scans on paid 20,000</th></tr></thead>
+            <tbody>
+              <tr><td>1 NBA game · 4 props</td><td class="num">4</td><td class="num">125</td><td class="num">5,000</td></tr>
+              <tr><td>5 NBA games · 4 props</td><td class="num">20</td><td class="num">25</td><td class="num">1,000</td></tr>
+              <tr><td>10 NBA games · 4 props</td><td class="num">40</td><td class="num">12</td><td class="num">500</td></tr>
+              <tr><td>13-game NFL Sunday · 4 props</td><td class="num">52</td><td class="num">9</td><td class="num">≈385</td></tr>
+              <tr><td>10 games · 8 props · 11–20 books</td><td class="num">160</td><td class="num">3</td><td class="num">125</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>These are maximums: you're only charged for props a book has actually posted, and getting the list of games is free. The Finder shows the estimate before you scan.</p>
+        <div class="callout">
+          <p><strong>Free plan or paid?</strong> The free plan is fine for trying props: a few scans of tonight's games. If you want to scan props every day, The Odds API's paid plan (from $30/month for 20,000 credits, as of November 2026) is the better fit. It's roughly 40× the free allowance and also unlocks Caesars and Fanatics. Upgrade at <a href="https://the-odds-api.com/#get-access" target="_blank" rel="noopener">the-odds-api.com</a>, then paste your new key into the Finder the same way.</p>
+        </div>
+
+        <h3>Prop-specific risks</h3>
+        <ul>
+          <li><strong>The player doesn't play.</strong> Most books void the prop, but the rules differ (some require the player to start, others count any playing time). If one leg is voided and the other isn't, you're no longer covered. Check each book's rules.</li>
+          <li><strong>Lower max stakes.</strong> Books often cap prop bets at small amounts, or cut your stake on the bet slip.</li>
+          <li><strong>Fastest route to getting limited.</strong> Prop arbing at soft books is heavily watched. See <a href="#stay-unlimited">Avoid getting limited</a>.</li>
+          <li><strong>Lines move on news.</strong> An injury report can move every prop in a game within seconds. Double-check prices right before betting.</li>
+        </ul>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="settings">
+        <h2>Every setting explained</h2>
+        <p>The filters above the results only change what's displayed. They <strong>never use credits</strong>, so try different values freely.</p>
+        <dl class="defs">
+          <dt>Min profit</dt><dd>Hide anything below this %. The default is 0 (true arbs only). Use a negative number like −1% to see near-misses, which helps when hedging.</dd>
+          <dt>Bankroll</dt><dd>The total you want to spread across all legs of one arb. Stakes scale with it.</dd>
+          <dt>Round stakes to</dt><dd>Rounds each stake to whole dollars, $5 or $10. Round numbers are easier to type and look like normal bets. Profit is recalculated for the worst case after rounding.</dd>
+          <dt>Ignore odds older than</dt><dd>Drops prices The Odds API hasn't confirmed recently. Old prices are the #1 cause of arbs that disappear when you go to bet. Shorter means fewer but more reliable results.</dd>
+          <dt>Odds</dt><dd>Show American (+110 / −110) or decimal (2.10 / 1.91) odds.</dd>
+          <dt>Skip games already started</dt><dd>Live odds change every few seconds, much faster than this data updates. Leave it on unless you know what you're doing.</dd>
+          <dt>Sportsbooks</dt><dd>Unticking a book also removes it from results you've already loaded, with no new search needed.</dd>
+        </dl>
+      </section>
+
+      <!-- CREDITS -->
+      <section id="credits">
+        <h2>Make your credits last</h2>
+        <p>Each game-line search costs <strong>sports × markets × (1 for every 10 books)</strong> credits. Prop scans are charged per game instead (see <a href="#props">Player prop arbs</a>). Checking your key, loading the sports list and the cover-bet suggestions are all free.</p>
+        <div class="table-scroll">
+          <table class="example">
+            <thead><tr><th>Search</th><th class="num">Credits</th><th class="num">Searches on 500 free credits</th></tr></thead>
+            <tbody>
+              <tr><td>1 sport · moneyline only · ≤10 books</td><td class="num">1</td><td class="num">500</td></tr>
+              <tr><td>3 sports · all 3 markets · ≤10 books</td><td class="num">9</td><td class="num">≈55</td></tr>
+              <tr><td>6 sports · all 3 markets · ≤10 books</td><td class="num">18</td><td class="num">≈27</td></tr>
+              <tr><td>6 sports · all 3 markets · 11–20 books</td><td class="num">36</td><td class="num">≈13</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul>
+          <li><strong>Keep to 10 books or fewer.</strong> The 11th book doubles the cost.</li>
+          <li><strong>Only tick sports with games soon.</strong> Off-days still cost credits.</li>
+          <li><strong>Don't refresh just to re-filter.</strong> Changing filters and books works on the data you already loaded, for free.</li>
+          <li>Your last results stay saved in the browser, so reopening the page doesn't use credits. Just watch the "fetched X ago" note.</li>
+        </ul>
+      </section>
+
+      <!-- RISKS -->
+      <section id="risks">
+        <h2>Risks and honest truths</h2>
+        <p>"Guaranteed profit" holds only if every leg is placed at the prices shown and every bet is settled normally. Here's what goes wrong in practice.</p>
+        <dl class="defs">
+          <dt>Sportsbooks limit arbers</dt><dd>Arbitrage betting is legal, but sportsbooks don't like it. Their terms let them restrict or close accounts, and most will cut your maximum stakes once they spot a pattern of arb bets. This tool can't stop that. Expect it, and treat each account as having a limited lifespan.</dd>
+          <dt>Odds move</dt><dd>The prices here are minutes old. If a price changes between your first and second bet, you're left with an open position. Always check before betting.</dd>
+          <dt>Voided bets</dt><dd>Books can cancel bets placed at an obvious pricing error ("palpable error"). If one leg is voided and the other stands, you're no longer covered. Edges over 10% get a warning for this reason.</dd>
+          <dt>Different rules</dt><dd>Books can settle the same event differently: overtime, postponed or abandoned games, retirements in tennis, and listed pitchers in baseball. Read each book's house rules for the sport.</dd>
+          <dt>Exchange fees</dt><dd>Exchanges and prediction markets (Kalshi, Novig, ProphetX, Polymarket) charge fees or commission that aren't included in the % shown.</dd>
+          <dt>Taxes</dt><dd>Gambling winnings are taxable income in the US. Keep records of your bets.</dd>
+          <dt>Legality</dt><dd>You must be of legal betting age (21+ in most states, 18+ in a few) and physically in a state where the book is licensed. Offshore books aren't regulated by any US state, so you have little protection if one doesn't pay.</dd>
+        </dl>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq">
+        <h2>FAQ</h2>
+        <details class="faq"><summary>Is arbitrage betting legal?</summary><p>Yes. Betting on both sides of a game is legal. But sportsbooks are private businesses and can limit or close your account under their terms.</p></details>
+        <details class="faq"><summary>Do I need a paid Odds API membership?</summary><p>No. The free Starter plan works with the Finder and covers most major US books. Paid plans add Caesars, Fanatics, ReBet and Courtside, plus far more credits.</p></details>
+        <details class="faq"><summary>I never got the API key email.</summary><p>Check spam, promotions and "updates" folders, and search your inbox for "Odds API". If it still isn't there, sign up again and double-check the email address.</p></details>
+        <details class="faq"><summary>It says my key was rejected.</summary><p>See <a href="#enter-key">Enter your key</a>. Usually the key was copied incompletely, it's too new to be active yet, or the month's credits are used up.</p></details>
+        <details class="faq"><summary>Why don't I see Caesars or Fanatics?</summary><p>The Odds API only provides them on paid plans. With a paid key, tick them under <strong>4. Your sportsbooks</strong>.</p></details>
+        <details class="faq"><summary>How do I avoid getting banned or limited?</summary><p>You can't prevent it forever, but you can slow it down a lot: put the "normal" leg on an exchange, mix in small cover bets on popular games, bet round amounts, and skip thin arbs at books you value. Full details in <a href="#stay-unlimited">Avoid getting limited</a>.</p></details>
+        <details class="faq"><summary>Can it find player prop arbs?</summary><p>Yes. Switch to <strong>Player props</strong> at the top of the Finder. They work on the free plan but use credits much faster. See <a href="#props">Player prop arbs</a>.</p></details>
+        <details class="faq"><summary>Why are there no arbs?</summary><p>That's normal most of the time. Arbs are rare and short-lived. More books and more sports mean more chances. Lines tend to differ most when news breaks (injuries, lineups) and as game time approaches.</p></details>
+        <details class="faq"><summary>An arb was there and then disappeared after I refreshed.</summary><p>A book moved its price. That's why you check prices before betting and place the first leg quickly.</p></details>
+        <details class="faq"><summary>Is my API key safe here?</summary><p>It's stored only in your browser and sent only to The Odds API. The site has no server and no analytics. Use <strong>Forget key</strong> on shared computers.</p></details>
+        <details class="faq"><summary>Does it work on my phone?</summary><p>Yes. The whole thing runs in the browser. You'll need to paste your key once on each device.</p></details>
+        <details class="faq"><summary>Does this site make money from me?</summary><p>No. There are no ads, no affiliate links and no paid tier. It's free.</p></details>
+      </section>
+
+      <p class="cta"><a class="btn btn-primary" href="index.html">Open the Finder</a></p>
+    </main>
+  </div>
+
+  <footer class="wrap footer">
+    <p>Must be 21+ and in a state where sports betting is legal. Gambling problem? Call or text <a href="tel:18004262537">1-800-GAMBLER</a>. Nothing here is betting, financial or tax advice.</p>
+    <p class="muted">Odds data from The Odds API. Not affiliated with any sportsbook or with The Odds API.</p>
+  </footer>
+</body>
+</html>
